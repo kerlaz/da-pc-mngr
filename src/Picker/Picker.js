@@ -57,13 +57,17 @@ class Picker extends Component {
     }
 
     getNote(url) {
+        let cleaner = /style="[a-zA-Z0-9:;.\s()\-,]*"/gi;
         try {
             fetch(url).then(res => {
                 console.log('status: ',res.status);
                 if (res.status === 404) {
                     this.setState({annotation: '<code>No annotation</code>'})
                 } else {
-                    res.text().then(text => this.setState({annotation: text}))
+                    res.text().then(text => {
+                        text = text.replace(cleaner,'');
+                        this.setState({annotation: text})
+                    })
                 }
             });
         } catch (e) {
