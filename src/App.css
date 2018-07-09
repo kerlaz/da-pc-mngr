@@ -31,7 +31,13 @@ h4.name {
     background-color: #ecf0f1;
     padding: 8px;
     box-sizing: border-box;
-    /*overflow: hidden;*/
+    opacity: 1;
+    transition: 1s;
+}
+
+.module-wrapper.fetching {
+    opacity: 0.5;
+    transition: 1s;
 }
 
 .stage {
@@ -50,38 +56,43 @@ h4.name {
     right: 0;
 }
 
-
-
 .note-wrapper {
     position: relative;
     background-color: white;
     height: calc(100vh - 435px);
-    /*margin: 4px;*/
-    padding: 24px 4px;
+    max-width: 100%;
+    padding: 24px 8px;
     overflow: hidden;
     box-sizing: border-box;
-    transition: .5s;
+    /*transition: .5s;*/
 }
+
 .note-wrapper.expanded {
     position: fixed;
     z-index: 100000;
+    max-width: 640px;
     top: 0;
-    left: 0;
+    left: 50%;
     height: 100vh;
-    transition: .5s;
+    transform: translateX(-50%);
+    /*transition: .5s;*/
 }
+
 .note {
     /*overflow-y: auto;*/
     font-size: 12px;
     height: calc(100vh - 483px);
     overflow: hidden;
-    transition: .5s;
+    /*transition: .5s;*/
 }
+
 .note-wrapper.expanded .note {
     height: calc(100vh - 48px);
     overflow-y: auto;
-    transition: .5s;
+    max-width: 640px;
+    /*transition: .5s;*/
 }
+
 .size-toggle img {
     position: absolute;
     top: 0;
@@ -98,6 +109,7 @@ h4.name {
     display: flex;
     justify-content: space-between;
 }
+
 .a-btn {
     width: 50px;
     height: 50px;
