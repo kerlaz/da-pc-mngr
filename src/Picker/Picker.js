@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import enlarge from "../arrows-expand.svg";
+import spinner from "../spinner.svg";
 import testImg from "../img/_0a2x34put.jpg";
 
 const api = 'http://localhost:3333/api/';
@@ -18,54 +19,71 @@ class Picker extends Component {
             matches: 0,
             annotation: "",
             metaStack: [],
-            position: 0
+            position: 0,
+            metaCount: 0
         }
     }
 
     componentDidMount() {
         this.getData();
+        window.test = this.ok.bind(this);
     }
 
     getData() {
         this.setState({
-            fetching: true
+            fetching: true,
+            position: 0
         });
-        fetch(api + 'get/1')
+        fetch(api + 'getRandom')
             .then(res => res.json())
             .then(data => {
                 console.log(data);
                 this.setState({
                     metaStack: data,
+                    metaCount: data[0].metastack.length,
                     intName: data[0].name
-                },()=>{
-                    this.update();
+                }, () => {
+                    try {
+                        this.update();
+                    } catch (e) {
+                        if(e){
+                            this.update();
+                        }
+                    }
                 });
                 // this.getNote(noteCDN + data[0].metastack[this.state.position].int_id + '.html');
             })
             .catch(error => console.log(error));
     }
 
-    update(){
+    update() {
         this.setState({
             fetching: true,
-            extName: this.state.metaStack[0].metastack[this.state.position].int_id,
+            extName: this.state.metaStack[0].metastack[this.state.position].title,
             img: imgCDN + this.state.metaStack[0].metastack[this.state.position].int_id + '.jpg',
             matches: this.state.metaStack[0].metastack[this.state.position].matches
             // annotation: noteCDN+data[0].metastack[this.state.position].int_id+'.html'
-        },()=>{this.setState({fetching: false})});
+        }, () => {
+            this.setState({fetching: false})
+        });
         this.getNote(noteCDN + this.state.metaStack[0].metastack[this.state.position].int_id + '.html');
     }
 
     getNote(url) {
-        let cleaner = /style="[a-zA-Z0-9:;.\s()\-,]*"/gi;
+        let cleanStyles = /style="[a-zA-Z0-9:;.\s()\-,]*"/gi;
+        let cleanPre = /<pre/g;
+        let cleanWidth = /width="[a-zA-Z0-9:;.\s()\-,]*"/gi;
         try {
             fetch(url).then(res => {
-                console.log('status: ',res.status);
+                console.log('status: ', res.status);
                 if (res.status === 404) {
                     this.setState({annotation: '<code>No annotation</code>'})
                 } else {
                     res.text().then(text => {
-                        text = text.replace(cleaner,'');
+                        text = text.replace(cleanStyles, '')
+                            .replace(cleanWidth,'')
+                            .replace(/\s{2}/g,' ')
+                            .replace(cleanPre,'<p');
                         this.setState({annotation: text})
                     })
                 }
@@ -83,40 +101,62 @@ class Picker extends Component {
     next() {
         let max = this.state.metaStack[0].metastack.length;
         let current = this.state.position;
-        if(current<(max-1)){
+        if (current < (max - 1)) {
             current++;
-            this.setState({position:current},()=>{this.update();});
+            this.setState({position: current}, () => {
+                this.update();
+            });
         }
     }
+
     prev() {
         let current = this.state.position;
-        if(current > 0){
+        if (current > 0) {
             current--;
-            this.setState({position:current},()=>{this.update();});
+            this.setState({position: current}, () => {
+                this.update();
+            });
         }
+    }
+
+    ok() {
+        let data = {
+            nameid: this.state.metaStack[0].nameid,
+            image: this.state.metaStack[0].metastack[this.state.position].int_id+'.jpg',
+            annotation: this.state.annotation
+        };
+        console.log(data);
     }
 
     render() {
         return (
             <div className={this.state.fetching ? "module-wrapper fetching" : "module-wrapper"}>
-                <div className="action-bar">
-                    <div className="a-btn"><span>ok</span></div>
-                    <div className="a-btn"><span>no</span></div>
-                    <div className="a-btn"><span>report</span></div>
-                    <div className="a-btn" onClick={()=>{this.prev()}}><span>prev</span></div>
-                    <div className="a-btn" onClick={()=>{this.next()}}><span>next</span></div>
-                </div>
+                <div className="overlay"><img src={spinner} alt="spinner"/></div>
                 <h4 className="name">{this.state.intName}</h4>
                 <h4 className="name">{this.state.extName}</h4>
                 <div className="stage">
                     <img className="img" src={this.state.img} alt=""/>
-                    <p className="score">Совпадения: {this.state.matches}</p>
+                    <div className="a-btn meta-prev" onClick={() => {
+                        this.prev()
+                    }}><span>⬅</span></div>
+                    <div className="a-btn meta-next" onClick={() => {
+                        this.next()
+                    }}><span>➡</span></div>
+                    <p className="score">
+                        Совпадения: {this.state.matches}<br/>
+                        Позиция: {this.state.position + 1}/{this.state.metaCount}
+                    </p>
                     <div className={this.state.noteExpanded ? "note-wrapper expanded" : "note-wrapper"}>
                         <div className="note" dangerouslySetInnerHTML={{__html: this.state.annotation}}/>
                         <div onClick={() => {
                             this.expand()
                         }} className="size-toggle"><img src={enlarge} alt=""/></div>
                     </div>
+                </div>
+                <div className="action-bar">
+                    <div className="a-btn"><span>Oшибка</span></div>
+                    <div className="a-btn"><span>OK</span></div>
+                    <div className="a-btn" onClick={()=>{this.getData()}}><span>Дальше</span></div>
                 </div>
             </div>
         )
