@@ -3,9 +3,9 @@ import enlarge from "../arrows-expand.svg";
 import spinner from "../spinner.svg";
 import testImg from "../img/_0a2x34put.jpg";
 
-const api = 'http://localhost:3333/api/';
+const api = 'http://localhost:5000/api/';
 const imgCDN = 'http://localhost:5000/images/';
-const noteCDN = 'http://localhost:5000/annotations/parsed/';
+const noteCDN = 'http://localhost:5000/api/getnote/';
 
 class Picker extends Component {
     constructor() {
@@ -26,7 +26,7 @@ class Picker extends Component {
 
     componentDidMount() {
         this.getData();
-        window.test = this.ok.bind(this);
+        // window.test = this.ok.bind(this);
     }
 
     getData() {
@@ -34,7 +34,7 @@ class Picker extends Component {
             fetching: true,
             position: 0
         });
-        fetch(api + 'getRandom')
+        fetch(api + 'getrandom')
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -66,7 +66,7 @@ class Picker extends Component {
         }, () => {
             this.setState({fetching: false})
         });
-        this.getNote(noteCDN + this.state.metaStack[0].metastack[this.state.position].int_id + '.html');
+        this.getNote(noteCDN + this.state.metaStack[0].metastack[this.state.position].int_id);
     }
 
     getNote(url) {
@@ -79,6 +79,7 @@ class Picker extends Component {
                 if (res.status === 404) {
                     this.setState({annotation: '<code>No annotation</code>'})
                 } else {
+                    // console.log(res=>res.json());
                     res.text().then(text => {
                         text = text.replace(cleanStyles, '')
                             .replace(cleanWidth,'')
@@ -126,6 +127,14 @@ class Picker extends Component {
             annotation: this.state.annotation
         };
         console.log(data);
+        fetch(api+'set/meta',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(res=>res.json()).then(status=>console.log(status));
     }
 
     render() {
@@ -155,7 +164,7 @@ class Picker extends Component {
                 </div>
                 <div className="action-bar">
                     <div className="a-btn"><span>Oшибка</span></div>
-                    <div className="a-btn"><span>OK</span></div>
+                    <div className="a-btn" onClick={()=>{this.ok()}}><span>OK</span></div>
                     <div className="a-btn" onClick={()=>{this.getData()}}><span>Дальше</span></div>
                 </div>
             </div>
