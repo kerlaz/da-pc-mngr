@@ -16,7 +16,10 @@ class App extends Component {
     }
     render() {
         return ([
-            <div key="top-bar" onClick={()=>{this.toggle()}} className="toggle-btn">{this.state.editor ? "Editor" : "Picker"}</div>,
+            <div key="top-bar" onClick={()=>{this.toggle()}} className={this.state.editor ? "toggle-btn editor" : "toggle-btn picker"}>
+                {this.state.editor ? "Editor" : "Picker"}
+                {/*<small>{window.location.hostname}</small>*/}
+            </div>,
             <div key="app-body" className="App">
                 {this.state.editor ? <Editor/> : <Picker/>}
             </div>

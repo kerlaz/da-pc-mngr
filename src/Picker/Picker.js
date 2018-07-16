@@ -1,17 +1,21 @@
 import React, {Component} from 'react';
 import enlarge from "../arrows-expand.svg";
+import arrowForward from "../arrow_forward_24px.svg";
+import arrowBack from "../arrow_back_24px.svg"
 import spinner from "../spinner.svg";
 import testImg from "../img/_0a2x34put.jpg";
 
-const api = 'http://localhost:5000/api/';
-const imgCDN = 'http://localhost:5000/images/';
-const noteCDN = 'http://localhost:5000/api/getnote/';
+const host = window.location.hostname;
+const api = `http://${host}:5000/api/`;
+const imgCDN = `http://${host}:5000/images/`;
+const noteCDN = `http://${host}:5000/api/getnote/`;
 
 class Picker extends Component {
     constructor() {
         super();
         this.state = {
             fetching: false,
+            modal: false,
             noteExpanded: false,
             intName: "Internal name",
             extName: "External name",
@@ -134,7 +138,43 @@ class Picker extends Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
-        }).then(res=>res.json()).then(status=>console.log(status));
+        }).then(res=>res.json()).then((status)=>{
+            console.log(status);
+            if(!status.error){
+                console.log('ok');
+                this.getData();
+            }
+        });
+    }
+    toggleModal(){
+        this.setState({modal: !this.state.modal});
+    }
+    error(eCase){
+        console.log(eCase);
+        if(eCase === -1){
+            this.toggleModal();
+        } else {
+            let data = {
+                nameid: this.state.metaStack[0].nameid,
+                error: eCase
+            };
+            console.log(data);
+            fetch(api+'set/error',{
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(res=>res.json()).then((status)=>{
+                console.log(status);
+                if(!status.error){
+                    console.log('ok');
+                    this.toggleModal();
+                    this.getData();
+                }
+            });
+        }
     }
 
     render() {
@@ -147,10 +187,10 @@ class Picker extends Component {
                     <img className="img" src={this.state.img} alt=""/>
                     <div className="a-btn meta-prev" onClick={() => {
                         this.prev()
-                    }}><span>⬅</span></div>
+                    }}><img src={arrowBack} alt=""/></div>
                     <div className="a-btn meta-next" onClick={() => {
                         this.next()
-                    }}><span>➡</span></div>
+                    }}><img src={arrowForward} alt=""/></div>
                     <p className="score">
                         Совпадения: {this.state.matches}<br/>
                         Позиция: {this.state.position + 1}/{this.state.metaCount}
@@ -163,9 +203,16 @@ class Picker extends Component {
                     </div>
                 </div>
                 <div className="action-bar">
-                    <div className="a-btn"><span>Oшибка</span></div>
+                    <div className="a-btn" onClick={()=>{this.toggleModal()}}><span>Oшибка</span></div>
                     <div className="a-btn" onClick={()=>{this.ok()}}><span>OK</span></div>
                     <div className="a-btn" onClick={()=>{this.getData()}}><span>Дальше</span></div>
+                </div>
+                <div className={this.state.modal ? "modal open" : "modal"}>
+                    <div className="e-btn" onClick={()=>{this.error(1)}}><span>Нет аннотации</span></div>
+                    <div className="e-btn" onClick={()=>{this.error(2)}}><span>Нет варианта</span></div>
+                    <div className="e-btn" onClick={()=>{this.error(3)}}><span>Некачественное изображение</span></div>
+                    <div className="e-btn" onClick={()=>{this.error(0)}}><span>Прочие ошибки</span></div>
+                    <div className="e-btn" onClick={()=>{this.error(-1)}}><span>Отмена</span></div>
                 </div>
             </div>
         )
