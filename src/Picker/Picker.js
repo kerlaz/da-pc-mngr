@@ -4,11 +4,11 @@ import arrowForward from "../arrow_forward_24px.svg";
 import arrowBack from "../arrow_back_24px.svg"
 import spinner from "../spinner.svg";
 import testImg from "../img/_0a2x34put.jpg";
+import Path from '../api';
 
-const host = window.location.hostname;
-const api = `http://${host}:5000/api/`;
-const imgCDN = `http://${host}:5000/images/`;
-const noteCDN = `http://${host}:5000/api/getnote/`;
+const api = Path.api;
+const imgCDN = Path.imgCDN;
+const noteCDN = Path.noteCDN;
 
 class Picker extends Component {
     constructor() {
@@ -135,7 +135,8 @@ class Picker extends Component {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': this.props.token
             },
             body: JSON.stringify(data)
         }).then(res=>res.json()).then((status)=>{
@@ -163,7 +164,8 @@ class Picker extends Component {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': this.props.token
                 },
                 body: JSON.stringify(data)
             }).then(res=>res.json()).then((status)=>{

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import Path from '../api';
 
-const host = window.location.hostname;
-const authURI = `http://${host}:5000/auth`;
+const authURI = Path.authURI;
 
 class Auth extends Component{
     constructor(){

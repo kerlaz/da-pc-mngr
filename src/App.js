@@ -4,9 +4,9 @@ import './App.css';
 import Auth from './Auth/Auth';
 import Picker from './Picker/Picker';
 import Editor from './Editor/Editor';
+import Path from './api';
 
-const host = window.location.hostname;
-const checkToken = `http://${host}:5000/token`;
+const checkToken = Path.checkToken;
 
 class App extends Component {
     constructor(){
@@ -53,7 +53,7 @@ class App extends Component {
                 {/*<small>{window.location.hostname}</small>*/}
             </div>,
             <div key="app-body" className="App">
-                {this.state.editor ? <Editor/> : <Picker/>}
+                {this.state.editor ? <Editor token={this.state.token}/> : <Picker token={this.state.token}/>}
             </div>
         ] : <Auth key="auth" setToken={this.setToken.bind(this)}/>);
     }
