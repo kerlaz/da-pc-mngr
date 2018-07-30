@@ -1,4 +1,4 @@
-
+const protocol = window.location.protocol;
 const port = ()=>{
     if(window.location.port === '3000'){
         return ':5000'
@@ -11,11 +11,11 @@ const port = ()=>{
 
 const host = window.location.hostname+port();
 
-const checkToken = `http://${host}/token`;
-const api = `http://${host}/api/`;
-const imgCDN = `http://${host}/images/`;
-const noteCDN = `http://${host}/api/getnote/`;
-const authURI = `http://${host}/auth`;
+const checkToken = `${protocol}//${host}/token`;
+const api = `${protocol}//${host}/api/`;
+const imgCDN = `${protocol}//${host}/images/`;
+const noteCDN = `${protocol}//${host}/api/getnote/`;
+const authURI = `${protocol}//${host}/auth`;
 
 const Path = {
     host,
